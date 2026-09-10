@@ -18,6 +18,216 @@ export function isEmergencySituation(text: string): boolean {
   return EMERGENCY_KEYWORDS.some(keyword => lower.includes(keyword));
 }
 
+// Enhanced fallback response generator with better keyword matching
+function generateFallbackResponse(prompt: string, pet: Pet): string {
+  const lower = prompt.toLowerCase();
+
+  // MAMMAL-SPECIFIC RESPONSES
+  if (pet.category === 'mammal') {
+    if (lower.includes('food') || lower.includes('feed') || lower.includes('diet') || lower.includes('eat') || lower.includes('nutrition')) {
+      return `🐾 **Nutrition Advice for ${pet.name} (${pet.species})**:\n\n` +
+        `- **Daily Caloric Needs**: At ${pet.weightKg} kg, ${pet.name} needs approximately ${Math.round((pet.weightKg * 30 + 70) * 1.4)} kcal/day.\n` +
+        `- **Meal Portions**: Divide into 2 balanced meals to promote steady digestion and prevent bloat.\n` +
+        `- **Healthy Additions**: Steamed carrots, pure pumpkin puree, blueberries, or cooked lean proteins.\n` +
+        `- **Toxic Foods to Avoid**: Onions, garlic, grapes, raisins, macadamia nuts, xylitol, and chocolate.\n` +
+        `- **Hydration**: Always provide fresh, filtered water throughout the day.`;
+    } else if (lower.includes('scratch') || lower.includes('itch') || lower.includes('skin') || lower.includes('flea') || lower.includes('allergy')) {
+      return `🩺 **Skin & Coat Health Assessment for ${pet.name}**:\n\n` +
+        `- **Potential Factors**: Seasonal environmental pollen, protein sensitivities, dry skin, flea allergies, or food sensitivities.\n` +
+        `- **Recommended Actions**: \n` +
+        `  • Inspect paws and underbelly for redness or lesions\n` +
+        `  • Supplement meals with Omega-3 fatty acids (fish oil)\n` +
+        `  • Use a gentle colloidal oatmeal shampoo weekly\n` +
+        `  • Consider a flea/tick preventative if not already on one\n` +
+        `- **When to Seek Vet Care**: If redness, hot spots, or hair loss develop, book an exam with your veterinarian.`;
+    } else if (lower.includes('training') || lower.includes('behav') || lower.includes('bark') || lower.includes('aggressive')) {
+      return `🎓 **Behavioral Training for ${pet.name}**:\n\n` +
+        `- **Positive Reinforcement**: Use treats, praise, and play as rewards for good behavior.\n` +
+        `- **Consistency**: Everyone in the household should use the same commands and rules.\n` +
+        `- **Exercise & Enrichment**: Many behavioral issues stem from insufficient activity. Aim for 20-30 mins daily exercise.\n` +
+        `- **Socialization**: Gradual, positive exposure to different people and environments builds confidence.\n` +
+        `- **Patience**: Behavior change takes time (2-4 weeks minimum). Stay persistent!`;
+    } else if (lower.includes('exercise') || lower.includes('walk') || lower.includes('energy') || lower.includes('activity')) {
+      return `🏃 **Exercise & Activity Plan for ${pet.name}**:\n\n` +
+        `- **Daily Recommendation**: ${pet.weightKg > 20 ? '45-60 minutes' : '20-30 minutes'} of active exercise daily.\n` +
+        `- **Best Activities**: Brisk walks, fetch games, agility play, or swimming (if applicable).\n` +
+        `- **Mental Enrichment**: Hide-and-seek games, puzzle toys, and training sessions.\n` +
+        `- **Weather Considerations**: Adjust intensity in hot/cold weather. Elderly or young pets need modified routines.\n` +
+        `- **Signs of Under-Exercise**: Destructive behavior, excessive barking, weight gain, or hyperactivity.`;
+    } else if (lower.includes('weight') || lower.includes('obese') || lower.includes('overweight') || lower.includes('thin')) {
+      return `⚖️ **Weight Management for ${pet.name}**:\n\n` +
+        `- **Current Weight**: ${pet.weightKg} kg\n` +
+        `- **Ideal Weight Range**: Consult with your vet, but generally:\n` +
+        `  • You should feel ribs with gentle pressure\n` +
+        `  • Visible waist when viewed from above\n` +
+        `  • Abdominal tuck when viewed from the side\n` +
+        `- **Weight Loss Tips**: Reduce treats, increase fiber, more exercise, measure portions carefully.\n` +
+        `- **Weight Gain Tips**: More frequent meals, calorie-dense healthy foods, strength-building exercise.`;
+    } else if (lower.includes('pregnant') || lower.includes('pregnancy')) {
+      return `👶 **Pregnancy Care for ${pet.name}**:\n\n` +
+        `- **Veterinary Monitoring**: Schedule monthly check-ups and ultrasounds at weeks 4, 6, and 8.\n` +
+        `- **Nutrition**: Increase calories by 25-50% starting at week 4. High-quality protein is essential.\n` +
+        `- **Exercise**: Maintain light activity but avoid jumping or rough play. Provide a quiet nesting area.\n` +
+        `- **Birth Preparation**: Prepare a clean, warm, quiet whelping/nesting box.\n` +
+        `- **When to Seek Emergency Care**: Difficulty breathing, vaginal bleeding, lethargy, or straining without delivery of puppy/kittens.`;
+    } else if (lower.includes('old') || lower.includes('senior') || lower.includes('age')) {
+      return `👴 **Senior Care for ${pet.name} (Age: ${pet.ageYears}y ${pet.ageMonths}m)**:\n\n` +
+        `- **Health Monitoring**: Regular vet check-ups every 6 months (vs. annual for younger pets).\n` +
+        `- **Joint Support**: Provide orthopedic beds, ramps for stairs, and consider joint supplements (glucosamine).\n` +
+        `- **Dental Care**: Dental disease is common in seniors. Brush teeth regularly or schedule professional cleaning.\n` +
+        `- **Diet Adjustments**: Lower-calorie but nutrient-dense foods. Smaller, more frequent meals.\n` +
+        `- **Quality of Life**: Pain management, mobility aids, and mental stimulation are key to comfort.`;
+    }
+  }
+
+  // BIRD-SPECIFIC RESPONSES
+  else if (pet.category === 'bird') {
+    if (lower.includes('food') || lower.includes('feed') || lower.includes('diet') || lower.includes('eat')) {
+      return `🦜 **Avian Nutrition for ${pet.name} (${pet.species})**:\n\n` +
+        `- **Ideal Diet Composition**: 65% formulated organic pellets + 25% fresh dark greens (kale, broccoli, spinach) + 10% seeds/millet.\n` +
+        `- **Vegetables**: Offer carrots, bell peppers, zucchini, and leafy greens daily.\n` +
+        `- **Avoid Toxic Foods**: Avocado, chocolate, salt, caffeine, and undercooked beans.\n` +
+        `- **Water**: Fresh, filtered water daily. Change bowls twice daily to prevent bacterial growth.\n` +
+        `- **Treats**: Nuts (unsalted) and dried fruits in moderation only.`;
+    } else if (lower.includes('feather') || lower.includes('molt') || lower.includes('plucking')) {
+      return `🪶 **Feather & Molting Care for ${pet.name}**:\n\n` +
+        `- **Normal Molting**: Occurs annually, lasting 2-3 months. Heavy dust baths help.\n` +
+        `- **Feather Plucking Causes**: Stress, boredom, low humidity (<40%), inadequate sleep, or medical issues.\n` +
+        `- **Humidity**: Maintain 40-60% humidity. Mist feathers or use humidifier daily.\n` +
+        `- **Sleep**: Ensure 10-12 hours of sleep in a quiet, dark area.\n` +
+        `- **Enrichment**: Foraging toys, shredding materials, and social interaction reduce stress.`;
+    } else if (lower.includes('behavior') || lower.includes('scream') || lower.includes('noisy') || lower.includes('aggressive')) {
+      return `🎓 **Bird Behavioral Support for ${pet.name}**:\n\n` +
+        `- **Screaming/Vocalization**: Often attention-seeking. Ignore noise; reward quiet behavior.\n` +
+        `- **Sleep Deprivation**: Can cause aggression and behavioral issues. Ensure 10-12 hours sleep nightly.\n` +
+        `- **Socialization**: Gradual hand-taming with treats. Never force interaction.\n` +
+        `- **Space**: Provide a large, stimulating cage or aviary with multiple perches.\n` +
+        `- **Environmental Toxins**: Avoid non-stick cookware, aerosols, scented candles, and open flames.`;
+    } else if (lower.includes('air quality') || lower.includes('toxic') || lower.includes('teflon')) {
+      return `🌬️ **Air Quality for ${pet.name} (${pet.species})**:\n\n` +
+        `- **Critical Toxins to Avoid**:\n` +
+        `  • Teflon/PTFE (non-stick cookware, space heaters, hair dryers)\n` +
+        `  • Aerosol sprays and perfumes\n` +
+        `  • Scented candles and plug-in air fresheners\n` +
+        `  • Cigarette and vape smoke\n` +
+        `  • Fumes from cleaning products\n` +
+        `- **Safe Ventilation**: Ensure good air circulation and keep windows open when using cleaning products.\n` +
+        `- **Emergency Signs**: Difficulty breathing, wheezing, or sudden weakness → immediate vet care!`;
+    }
+  }
+
+  // AQUATIC-SPECIFIC RESPONSES
+  else if (pet.category === 'aquatic') {
+    if (lower.includes('water') || lower.includes('tank') || lower.includes('temperature') || lower.includes('ph')) {
+      return `💧 **Water Parameters for ${pet.name} (${pet.species})**:\n\n` +
+        `- **Temperature**: Most species prefer 76-80°F (24-27°C). Check species-specific requirements.\n` +
+        `- **pH Level**: Generally 6.5-8.0 depending on species (acidic for tetras, neutral for most community).\n` +
+        `- **Ammonia/Nitrite**: Must be 0 ppm (toxic to fish).\n` +
+        `- **Nitrate**: Keep under 20-40 ppm (use test kit weekly).\n` +
+        `- **Hardness (GH/KH)**: Species-dependent. Research your fish's natural habitat.`;
+    } else if (lower.includes('water change') || lower.includes('cleaning') || lower.includes('maintenance')) {
+      return `🧹 **Tank Maintenance for ${pet.name}**:\n\n` +
+        `- **Weekly Water Changes**: 20-30% change using water conditioner (like Seachem Prime).\n` +
+        `- **Gravel Vacuuming**: Clean substrate during water changes to remove waste.\n` +
+        `- **Filter Maintenance**: Rinse filter media in old tank water (not tap) weekly.\n` +
+        `- **Algae Control**: Regular cleaning and 8-10 hours daily light reduces algae blooms.\n` +
+        `- **Monthly Tasks**: Deep clean decorations, replace filter cartridges if needed, test all parameters.`;
+    } else if (lower.includes('fin rot') || lower.includes('disease') || lower.includes('sick') || lower.includes('spot')) {
+      return `🚨 **Disease & Health for ${pet.name}**:\n\n` +
+        `- **Fin Rot**: Frayed/rotting fins from poor water quality or stress. Increase water changes, improve filtration.\n` +
+        `- **Ich (White Spot)**: White spots on body/fins. Raise temperature slightly (if suitable), treat with ich medicine.\n` +
+        `- **Dropsy**: Bloated appearance, raised scales. Usually serious—consult vet or aquarist.\n` +
+        `- **Cloudy Eye**: Often from poor water quality. Do large water changes and check parameters.\n` +
+        `- **Prevention**: Maintain excellent water quality, quarantine new fish, avoid overfeeding.`;
+    } else if (lower.includes('feeding') || lower.includes('food') || lower.includes('eat')) {
+      return `🍽️ **Feeding Guidelines for ${pet.name}**:\n\n` +
+        `- **Portion Size**: Feed small amounts consumed within 90 seconds.\n` +
+        `- **Frequency**: Most fish 1-2 times daily. Some species prefer once daily.\n` +
+        `- **Food Types**: Use high-quality flakes, pellets, or species-specific foods.\n` +
+        `- **Live Foods**: Brine shrimp or bloodworms as occasional treats (1-2x weekly).\n` +
+        `- **Overfeeding Dangers**: Uneaten food rots, raising ammonia/nitrates and causing swim bladder issues.`;
+    } else if (lower.includes('plant') || lower.includes('live plants') || lower.includes('vegetation')) {
+      return `🌿 **Live Plants for ${pet.name}'s Tank**:\n\n` +
+        `- **Benefits**: Oxygen production, natural filtration, hiding spots, reduced algae.\n` +
+        `- **Best Plants for Low-Light Tanks**: Java fern, Anubias, Moss (don't bury roots).\n` +
+        `- **Beginner Plants**: Ludwigia, Rotala, Dwarf Hairgrass (easy to grow).\n` +
+        `- **Lighting**: Most aquatic plants need 8-10 hours daily light. Consider LED grow lights.\n` +
+        `- **Care**: Add aquarium fertilizer (nitrogen, potassium, trace elements) if plants aren't thriving.`;
+    }
+  }
+
+  // REPTILE-SPECIFIC RESPONSES
+  else if (pet.category === 'reptile') {
+    if (lower.includes('temperature') || lower.includes('basking') || lower.includes('heat') || lower.includes('thermal')) {
+      return `🌡️ **Thermal Gradient for ${pet.name} (${pet.species})**:\n\n` +
+        `- **Basking Zone**: 100-105°F (37-40°C) with UVB lamp overhead.\n` +
+        `- **Cool Side**: 75-80°F (24-27°C) for thermoregulation.\n` +
+        `- **Night Temperature**: Can drop to 70-75°F (21-24°C).\n` +
+        `- **Thermometers**: Use analog or digital probes on both sides. Never rely on touch alone.\n` +
+        `- **Equipment**: Under-tank heater, ceramic heat lamp, or heat tape for nighttime if needed.`;
+    } else if (lower.includes('uvb') || lower.includes('lighting') || lower.includes('light')) {
+      return `💡 **UVB Lighting for ${pet.name}**:\n\n` +
+        `- **UVB Importance**: Essential for Vitamin D3 synthesis and calcium absorption (prevents MBD).\n` +
+        `- **Bulb Replacement**: Replace linear UVB bulbs every 6-12 months (output degrades).\n` +
+        `- **Photoperiod**: 10-12 hours daily light exposure (natural day-night cycle).\n` +
+        `- **Placement**: Mount 12-18 inches above basking spot. Screen blocks UVB—use mesh or unscreened fixtures.\n` +
+        `- **Monitoring**: If appetite/activity drops, check UVB levels with meter (if available).`;
+    } else if (lower.includes('food') || lower.includes('feed') || lower.includes('diet') || lower.includes('eat')) {
+      return `🍴 **Nutrition for ${pet.name} (${pet.species})**:\n\n` +
+        `- **Protein Source**: Live insects, pre-killed prey, or frozen-thawed (species-dependent).\n` +
+        `- **Feeding Schedule**: Juveniles 1x daily, adults 3-4x weekly (depends on species).\n` +
+        `- **Prey Size**: Should be appropriately sized (generally 1/3–1/2 the reptile's length).\n` +
+        `- **Gut Loading**: Feed insects calcium-rich diet 24 hours before offering to reptile.\n` +
+        `- **Calcium Dust**: Coat insects with phosphorus-free calcium + D3 powder 2-3x weekly.`;
+    } else if (lower.includes('calcium') || lower.includes('mbd') || lower.includes('metabolic bone')) {
+      return `🦴 **Preventing Metabolic Bone Disease (MBD) for ${pet.name}**:\n\n` +
+        `- **Root Causes**: Inadequate UVB lighting, poor diet, insufficient calcium supplementation.\n` +
+        `- **Early Signs**: Lethargy, loss of appetite, swollen jaw or limbs, difficulty moving.\n` +
+        `- **Prevention**: \n` +
+        `  • Quality UVB lighting (replace every 6-12 months)\n` +
+        `  • Dust feeders with calcium + D3 2-3x weekly\n` +
+        `  • Offer leafy greens (for herbivorous species)\n` +
+        `  • Proper temperature gradient\n` +
+        `- **Severe MBD**: Requires veterinary care (vet-supervised calcium injections, long-term recovery).`;
+    } else if (lower.includes('shed') || lower.includes('shedding') || lower.includes('skin')) {
+      return `🐍 **Shedding & Skin Care for ${pet.name}**:\n\n` +
+        `- **Normal Shedding**: Occurs every 4-8 weeks (depends on species and age).\n` +
+        `- **Signs of Impending Shed**: Dull coloration, cloudy eyes, increased hiding.\n` +
+        `- **Stuck Shed**: Humidity too low. Provide humid hide or gentle warm bath.\n` +
+        `- **Rough Shed**: Improper humidity, poor nutrition, or skin issues. Consult vet if persistent.\n` +
+        `- **Ideal Humidity**: 40-70% (species-dependent). Monitor with hygrometer.`;
+    }
+  }
+
+  // GENERIC/DEFAULT RESPONSES
+  else {
+    if (lower.includes('happy') || lower.includes('mood') || lower.includes('stress') || lower.includes('health')) {
+      return `✨ **Overall Wellness for ${pet.name} (${pet.species})**:\n\n` +
+        `- **Daily Active Exercise**: 20-30 minutes of activity tailored to species.\n` +
+        `- **Fresh Water**: Always available, changed daily.\n` +
+        `- **Mental Enrichment**: Toys, games, and species-appropriate activities reduce stress.\n` +
+        `- **Complete Care Checklist**: Follow your daily tasks to keep ${pet.name}'s happiness high!\n` +
+        `- **Regular Vet Checkups**: Annual (or bi-annual for seniors) ensures early disease detection.`;
+    } else if (lower.includes('first aid') || lower.includes('emergency') || lower.includes('injury')) {
+      return `🆘 **First Aid for ${pet.name}**:\n\n` +
+        `- **Severe Bleeding**: Apply gentle pressure with clean cloth. Seek vet care immediately.\n` +
+        `- **Fractures**: Immobilize limb, keep warm, go to vet.\n` +
+        `- **Choking**: Attempt gentle abdominal thrusts if small object visible. Go to vet if signs persist.\n` +
+        `- **Poisoning**: Identify poison, bring container to vet. Don't induce vomiting without professional guidance.\n` +
+        **⚠️ When in doubt, contact your emergency vet immediately.**`;
+    }
+  }
+
+  // Final fallback if no keywords match
+  return `🐾 **Care Recommendation for ${pet.name} (${pet.species})**:\n\n` +
+    `I'm not familiar with that specific question, but here are some general tips:\n\n` +
+    `- Daily active exercise and fresh, filtered water keep ${pet.name} healthy.\n` +
+    `- Species-appropriate diet and habitat are fundamental to wellbeing.\n` +
+    `- Regular veterinary checkups catch health issues early.\n` +
+    `- Complete your daily care tasks to keep ${pet.name}'s happiness score high!\n\n` +
+    `**Try asking about**: feeding, health, behavior, exercise, habitat, or specific symptoms. For detailed medical concerns, always consult your veterinarian.`;
+}
+
 export async function askPetAssistant(
   prompt: string,
   pet: Pet,
@@ -99,53 +309,11 @@ Guidelines:
       }
     }
   } catch (err) {
-    console.warn('Gemini API call warning, using fallback model:', err);
+    console.warn('Gemini API call warning, using intelligent fallback model:', err);
   }
 
-  // Fallback intelligent species response generator
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const lower = prompt.toLowerCase();
-  let responseText = '';
-
-  if (pet.category === 'mammal') {
-    if (lower.includes('food') || lower.includes('feed') || lower.includes('diet') || lower.includes('eat')) {
-      responseText = `🐾 **Nutrition Advice for ${pet.name} (${pet.species})**:\n` +
-        `- **Daily Caloric Needs**: At ${pet.weightKg} kg, ${pet.name} needs approximately ${Math.round((pet.weightKg * 30 + 70) * 1.4)} kcal/day.\n` +
-        `- **Meal Portions**: Divide into 2 balanced meals to promote steady digestion and prevent bloat.\n` +
-        `- **Healthy Additions**: Steamed carrots, pure pumpkin puree, blueberries, or cooked lean proteins.\n` +
-        `- **Toxic Foods to Avoid**: Onions, garlic, grapes, raisins, macadamia nuts, xylitol, and chocolate.`;
-    } else if (lower.includes('scratch') || lower.includes('itch') || lower.includes('skin') || lower.includes('flea')) {
-      responseText = `🩺 **Skin & Coat Health Assessment for ${pet.name}**:\n` +
-        `- **Potential Factors**: Seasonal environmental pollen, protein sensitivities, dry skin, or flea allergies.\n` +
-        `- **Recommended Actions**: Inspect paws and underbelly, supplement meals with Omega-3 fatty acids, and use a gentle colloidal oatmeal shampoo.\n` +
-        `- If redness, hot spots, or hair loss develop, book an exam with your veterinarian.`;
-    } else {
-      responseText = `✨ **Care Recommendation for ${pet.name} (${pet.species})**:\n` +
-        `- Daily active exercise (${pet.weightKg > 20 ? '45-60 mins' : '20-30 mins'}), fresh filtered water, and mental enrichment keep ${pet.name} happy and healthy.\n` +
-        `- Complete daily care tasks in your checklist to keep ${pet.name}'s happiness score high!`;
-    }
-  } else if (pet.category === 'bird') {
-    responseText = `🦜 **Avian Care Guide for ${pet.name} (${pet.species})**:\n` +
-      `- **Diet**: 65% formulated organic pellets + 25% fresh dark greens (kale, broccoli) + 10% seeds/millet.\n` +
-      `- **Air Quality**: Birds have sensitive respiratory systems. Keep them safe from Teflon/non-stick fumes, aerosols, and scented candles.\n` +
-      `- **Enrichment**: Provide natural wood perches of varying diameters to support foot and joint health.`;
-  } else if (pet.category === 'aquatic') {
-    responseText = `🐠 **Aquatic Wellness Guide for ${pet.name} (${pet.species})**:\n` +
-      `- **Water Parameters**: Keep temperature stable at 78°F–80°F, ammonia at 0 ppm, and nitrates under 20 ppm.\n` +
-      `- **Maintenance**: Perform 20% weekly water changes using a quality water conditioner (like Seachem Prime).\n` +
-      `- **Feeding**: Feed small portions consumed within 90 seconds to prevent swim bladder issues and maintain water clarity.`;
-  } else if (pet.category === 'reptile') {
-    responseText = `🦎 **Reptile Habitat & Care for ${pet.name} (${pet.species})**:\n` +
-      `- **Thermal Gradient**: Maintain a basking zone of 100°F–105°F and a cool side ambient of 75°F–80°F.\n` +
-      `- **UVB Lighting**: Replace linear UVB bulbs every 6-12 months to ensure proper Vitamin D3 synthesis and prevent MBD.\n` +
-      `- **Nutrition**: Dust feeders with phosphorus-free Calcium + D3 regularly and offer fresh hydrated greens.`;
-  } else {
-    responseText = `🐾 **Care Guide for ${pet.name} (${pet.species})**:\n` +
-      `- Category: **${pet.category.toUpperCase()}**\n` +
-      `- Provide species-tailored nutrition, clean water, and regular habitat maintenance.\n` +
-      `- Track daily tasks and growth to keep ${pet.name} thriving!`;
-  }
-
+  // Use enhanced fallback intelligent species response generator
+  const responseText = generateFallbackResponse(prompt, pet);
   return { text: responseText, isEmergency: false };
 }
 

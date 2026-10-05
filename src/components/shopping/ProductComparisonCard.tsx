@@ -53,7 +53,7 @@ export const ProductComparisonCard: React.FC<ProductComparisonCardProps> = ({ pr
             </div>
             {savings > 0 && (
               <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 text-[10px] font-bold">
-                Save up to ${savings}
+                Save up to {product.stores[0]?.currency || '₹'}{savings}
               </span>
             )}
           </div>
@@ -90,7 +90,7 @@ export const ProductComparisonCard: React.FC<ProductComparisonCardProps> = ({ pr
 
                   <div className="text-right">
                     <span className="font-black text-base text-slate-900 dark:text-slate-100">
-                      ${store.price.toFixed(2)}
+                      {store.currency || '₹'}{store.price.toLocaleString()}
                     </span>
                   </div>
                 </div>

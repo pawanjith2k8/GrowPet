@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://edunova-b432b.web.app/sitemap.xml

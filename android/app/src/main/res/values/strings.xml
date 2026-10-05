@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Smart Care for Happy Pets</string>
+    <string name="title_activity_main">Smart Care for Happy Pets</string>
+    <string name="package_name">com.smartcare.pets</string>
+    <string name="custom_url_scheme">com.smartcare.pets</string>
+</resources>

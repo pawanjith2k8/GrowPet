@@ -46,9 +46,9 @@ export function getOutboundSearchUrl(store: string, query: string, userLocation:
 
 // Map stores and price multipliers based on user country location
 export function getRegionalStores(query: string, userLocation: string = 'India', baseUsdPrice: number = 25): StoreOption[] {
-  const loc = userLocation.toLowerCase();
+  const loc = (userLocation || 'India').toLowerCase();
 
-  if (loc.includes('india') || loc.includes('chennai') || loc.includes('mumbai') || loc.includes('bengaluru') || loc.includes('delhi') || loc.includes('hyderabad')) {
+  if (!loc || loc.includes('india') || loc.includes('chennai') || loc.includes('mumbai') || loc.includes('bengaluru') || loc.includes('delhi') || loc.includes('hyderabad') || loc.includes('in') || (!loc.includes('uk') && !loc.includes('united states') && !loc.includes('usa') && !loc.includes('canada') && !loc.includes('australia') && !loc.includes('germany') && !loc.includes('europe'))) {
     const baseInr = Math.round(baseUsdPrice * 40); // Standardized price scale in INR
     const blinkitPrice = baseInr + 30;
     const supertailsPrice = baseInr - 40;

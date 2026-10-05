@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GrowPet - Statement of Work (SOW)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #1e293b;
+      background: #ffffff;
+      line-height: 1.55;
+      font-size: 13.5px;
+      margin: 0;
+      padding: 0;
+    }
+
+    .header-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #10b981;
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.5px;
+      margin: 0;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+      margin: 0;
+    }
+
+    .doc-meta {
+      text-align: right;
+      font-size: 11.5px;
+      color: #475569;
+    }
+
+    .meta-badge {
+      display: inline-block;
+      padding: 3px 9px;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    h1 {
+      font-size: 19px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 20px 0 10px 0;
+      border-left: 4px solid #10b981;
+      padding-left: 10px;
+      letter-spacing: -0.3px;
+    }
+
+    h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 16px 0 8px 0;
+    }
+
+    p {
+      margin: 0 0 10px 0;
+      color: #334155;
+    }
+
+    .summary-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .card-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .card-text {
+      font-size: 11.5px;
+      color: #475569;
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px 0;
+      font-size: 12px;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #0f172a;
+      font-weight: 700;
+      text-align: left;
+      padding: 8px 12px;
+      border-bottom: 2px solid #cbd5e1;
+    }
+
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+    }
+
+    tr:nth-child(even) td {
+      background: #fafafa;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .code-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+    }
+
+    .footer {
+      margin-top: 26px;
+      padding-top: 14px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header-banner">
+    <div class="logo-container">
+      <div class="logo-icon">🐾</div>
+      <div>
+        <h1 class="brand-title" style="margin:0; border:none; padding:0;">GrowPet Platform</h1>
+        <p class="brand-subtitle">Smart Care for Happy Pets & All Species Wellness</p>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="meta-badge">Statement of Work (SOW)</div>
+      <div><strong>Version:</strong> 1.0.0 (Production)</div>
+      <div><strong>Date:</strong> September 6, 2026</div>
+      <div><strong>Project ID:</strong> edunova-b432b</div>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <h1>1. Executive Summary</h1>
+  <div class="summary-box">
+    <p style="margin: 0; font-size: 12.5px; line-height: 1.55;">
+      <strong>GrowPet</strong> is an advanced, multi-species digital care management platform engineered for pet owners across all animal classifications: <em>Mammals, Birds, Aquatic Fish, Reptiles, Amphibians, and Exotic Pets</em>. The system provides automated habit care generators, AI-powered triage and symptom analysis, emergency GPS veterinary locator, multi-store price aggregation, and instant real-time multi-browser cloud synchronization.
+    </p>
+  </div>
+
+  <!-- Section 2 -->
+  <h1>2. Functional Scope & Delivered Modules</h1>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🐶🐱 Universal Pet Profiles</div>
+      <p class="card-text">
+        Unlimited pet profile creation with intelligent species auto-detection, avatar gallery (cats, dogs, birds, reptiles, fish), and direct device photo upload via Base64.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📅 Tailored Care & Streak Engine</div>
+      <p class="card-text">
+        Automated daily care checklists tailored to species biology. Live calculation of Happiness Score (0–100%), care streaks, and celebratory confetti animations.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🤖 AI Veterinary Care Consultant</div>
+      <p class="card-text">
+        Species-aware AI chat assistant providing immediate dietary analysis, symptom triage, emergency first-aid protocols, and persistent chat cloud memory.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📍 GPS Vet Locator & Emergency Routing</div>
+      <p class="card-text">
+        High-accuracy dual GPS and IP Geolocation fallback with 1-click popular city shortcut filters, phone dialing, and direct Google Maps turn-by-turn routing.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💊 Medication & Health Records Vault</div>
+      <p class="card-text">
+        Track medication schedules, dosage instructions, last-given timestamps, weight tracking history (grams and kg), and veterinary medical visits.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🛒 Multi-Store Price Comparison</div>
+      <p class="card-text">
+        Aggregated price comparison across major pet retailers (Amazon, Chewy, Petco, PetSmart, Walmart) with expense categorization and budget analytics.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 16px;">
+    <div class="card-title">☁️ 1-Click Passwordless Auth & Real-Time Cloud Sync</div>
+    <p class="card-text">
+      Frictionless passwordless email authentication with deterministic user UID generation. Full cross-browser and cross-device synchronization powered by Firebase Cloud Firestore live snapshot listeners.
+    </p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- Page 2 Header -->
+  <div class="header-banner" style="margin-bottom: 16px;">
+    <div class="logo-container">
+      <div class="logo-icon" style="width:36px; height:36px; font-size:18px;">🐾</div>
+      <div>
+        <h2 style="margin:0; font-size: 16px; font-weight:800;">GrowPet Platform — Technical Specifications</h2>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div><strong>Deployment URL:</strong> https://edunova-b432b.web.app</div>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <h1>3. Technology Architecture & Stack</h1>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Layer</th>
+        <th style="width: 40%;">Technology / Library</th>
+        <th style="width: 35%;">Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Frontend Framework</strong></td>
+        <td><span class="code-tag">React 18 + TypeScript</span></td>
+        <td>Type-safe, component-driven reactive user interface</td>
+      </tr>
+      <tr>
+        <td><strong>Build & Tooling</strong></td>
+        <td><span class="code-tag">Vite 8 + Tailwind CSS</span></td>
+        <td>Ultra-fast production build and responsive styling</td>
+      </tr>
+      <tr>
+        <td><strong>Cloud Database</strong></td>
+        <td><span class="code-tag">Firebase Cloud Firestore</span></td>
+        <td>NoSQL real-time document sync with subcollections</td>
+      </tr>
+      <tr>
+        <td><strong>Authentication</strong></td>
+        <td><span class="code-tag">Firebase Auth + Custom Session</span></td>
+        <td>1-Click passwordless login & Google SSO integration</td>
+      </tr>
+      <tr>
+        <td><strong>Hosting & CDN</strong></td>
+        <td><span class="code-tag">Firebase Hosting</span></td>
+        <td>High-availability global Edge CDN with SSL encryption</td>
+      </tr>
+      <tr>
+        <td><strong>Geolocation</strong></td>
+        <td><span class="code-tag">W3C GPS API + ipwho.is</span></td>
+        <td>Dual GPS & fallback IP location detection</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 4 -->
+  <h1>4. Deliverables & Milestone Completion Status</h1>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 15%;">Milestone</th>
+        <th style="width: 65%;">Deliverable Scope</th>
+        <th style="width: 20%; text-align: center;">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>M1</strong></td>
+        <td>Multi-species UI/UX, species care presets, responsive dark/light mode</td>
+        <td style="text-align: center;"><span class="status-pill">Delivered</span></td>
+      </tr>
+      <tr>
+        <td><strong>M2</strong></td>
+        <td>GPS Vet Locator with Google Maps routing and city shortcut pills</td>
+        <td style="text-align: center;"><span class="status-pill">Delivered</span></td>
+      </tr>
+      <tr>
+        <td><strong>M3</strong></td>
+        <td>Multi-store price aggregator (Amazon, Chewy, Petco, PetSmart, Walmart)</td>
+        <td style="text-align: center;"><span class="status-pill">Delivered</span></td>
+      </tr>
+      <tr>
+        <td><strong>M4</strong></td>
+        <td>Passwordless 1-Click Email Login and authentication flow</td>
+        <td style="text-align: center;"><span class="status-pill">Delivered</span></td>
+      </tr>
+      <tr>
+        <td><strong>M5</strong></td>
+        <td>Real-time multi-browser Cloud Firestore live data synchronization</td>
+        <td style="text-align: center;"><span class="status-pill">Delivered</span></td>
+      </tr>
+      <tr>
+        <td><strong>M6</strong></td>
+        <td>Smart photo auto-matcher, avatar preset gallery, device file upload</td>
+        <td style="text-align: center;"><span class="status-pill">Delivered</span></td>
+      </tr>
+      <tr>
+        <td><strong>M7</strong></td>
+        <td>Production deployment on Firebase Hosting (edunova-b432b.web.app)</td>
+        <td style="text-align: center;"><span class="status-pill">Delivered</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Section 5 -->
+  <h1>5. Production Deployment Sign-Off</h1>
+  <div class="summary-box" style="margin-bottom: 0;">
+    <div style="display: flex; justify-content: space-between; font-size: 12px;">
+      <div>
+        <strong>Production Endpoint:</strong> <a href="https://edunova-b432b.web.app" style="color: #059669; text-decoration: none; font-weight:700;">https://edunova-b432b.web.app</a><br>
+        <strong>Hosting Status:</strong> Active & Globally Distributed<br>
+        <strong>Supported Platforms:</strong> Android (Chrome/PWA), iOS (Safari), Desktop (Chrome, Edge, Safari, Firefox)
+      </div>
+      <div style="text-align: right;">
+        <span class="status-pill" style="font-size: 11px; padding: 4px 12px;">✔ ALL MILESTONES VERIFIED</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div>GrowPet Platform © 2026 • Confidential & Proprietary</div>
+    <div>Page 2 of 2</div>
+  </div>
+
+</body>
+</html>

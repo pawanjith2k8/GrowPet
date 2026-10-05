@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { usePet } from '../../context/PetContext';
+import { useAuth } from '../../context/AuthContext';
 import { VetClinic } from '../../types';
 import { getSortedVets, getUserCoordinates, searchLocationByCity, fetchLiveNearbyVets } from '../../services/vetService';
 import { VetCard } from './VetCard';
@@ -9,6 +10,7 @@ import { useToast } from '../../context/ToastContext';
 
 export const VetLocatorView: React.FC = () => {
   const { activePet } = usePet();
+  const { user } = useAuth();
   const { showToast } = useToast();
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number; locationName?: string } | null>(null);
   const [allClinics, setAllClinics] = useState<VetClinic[]>([]);
@@ -23,19 +25,19 @@ export const VetLocatorView: React.FC = () => {
   // Initial load
   useEffect(() => {
     handleGetLocation(false);
-  }, []);
+  }, [user?.location]);
 
   const handleGetLocation = async (userInitiated = true) => {
     setLocating(true);
     setLoadingVets(true);
     try {
-      const coords = await getUserCoordinates();
+      const coords = await getUserCoordinates(user?.location);
       if (coords) {
         setUserCoords(coords);
-        const clinics = await fetchLiveNearbyVets(coords.lat, coords.lng, coords.locationName || 'Your City');
+        const clinics = await fetchLiveNearbyVets(coords.lat, coords.lng, coords.locationName || user?.location || 'Your City');
         setAllClinics(clinics);
         if (userInitiated) {
-          showToast(`📍 Found ${clinics.length} veterinary hospitals near ${coords.locationName || 'your GPS location'}!`, 'success');
+          showToast(`📍 Found ${clinics.length} veterinary hospitals near ${coords.locationName || 'your location'}!`, 'success');
         }
       } else {
         // Fallback default coordinates (e.g. user area)

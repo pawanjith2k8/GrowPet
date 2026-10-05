@@ -30,81 +30,83 @@ export function isSpeciesMatch(clinic: VetClinic, category?: SpeciesCategory): b
   }
 }
 
-// 1. Dual GPS & IP Geolocation (Ultra-Reliable on all mobile & desktop browsers)
-export async function getUserCoordinates(): Promise<{ lat: number; lng: number; locationName: string }> {
-  // Try browser GPS first with a quick timeout
+// Ultra-reliable Geolocation combining GPS, profile location preferences, BigDataCloud, and IP fallbacks
+export async function getUserCoordinates(preferredProfileLocation?: string): Promise<{ lat: number; lng: number; locationName: string }> {
+  // 1. Try browser GPS first with a generous 10s timeout
   const gpsCoords = await new Promise<{ lat: number; lng: number } | null>(resolve => {
     if (!navigator.geolocation) {
       resolve(null);
       return;
     }
     navigator.geolocation.getCurrentPosition(
-      pos => {
-        resolve({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude
-        });
-      },
+      pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
       () => resolve(null),
-      { timeout: 4000, enableHighAccuracy: false, maximumAge: 60000 }
+      { timeout: 10000, enableHighAccuracy: true, maximumAge: 30000 }
     );
   });
 
   if (gpsCoords) {
-    let locationName = 'Current GPS Area';
+    let locationName = 'Your GPS Area';
+    // Reverse geocode via BigDataCloud (fast, free, CORS-friendly)
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${gpsCoords.lat}&lon=${gpsCoords.lng}`, {
-        headers: { 'User-Agent': 'SmartCarePetsApp/2.0' }
-      });
+      const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${gpsCoords.lat}&longitude=${gpsCoords.lng}&localityLanguage=en`);
       if (res.ok) {
         const data = await res.json();
-        locationName =
-          data.address?.city ||
-          data.address?.town ||
-          data.address?.suburb ||
-          data.address?.neighbourhood ||
-          data.address?.county ||
-          data.address?.state ||
-          'Your Location';
+        locationName = data.locality || data.city || data.principalSubdivision || data.countryName || 'Your GPS Area';
       }
-    } catch (e) {}
+    } catch (e) {
+      try {
+        const nomRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${gpsCoords.lat}&lon=${gpsCoords.lng}`, {
+          headers: { 'User-Agent': 'SmartCarePetsApp/2.0' }
+        });
+        if (nomRes.ok) {
+          const nomData = await nomRes.json();
+          locationName = nomData.address?.city || nomData.address?.town || nomData.address?.suburb || 'Your GPS Area';
+        }
+      } catch (err) {}
+    }
     return { lat: gpsCoords.lat, lng: gpsCoords.lng, locationName };
   }
 
-  // Fallback: Instant IP-based Geolocation if browser GPS is blocked/denied/slow
-  try {
-    const ipRes = await fetch('https://ipwho.is/');
-    if (ipRes.ok) {
-      const ipData = await ipRes.json();
-      if (ipData && ipData.success !== false && ipData.latitude && ipData.longitude) {
-        return {
-          lat: ipData.latitude,
-          lng: ipData.longitude,
-          locationName: ipData.city || ipData.region || ipData.country || 'Detected City'
-        };
-      }
+  // 2. If GPS failed or was denied, try user profile location if provided
+  if (preferredProfileLocation) {
+    const profileGeo = await searchLocationByCity(preferredProfileLocation);
+    if (profileGeo) {
+      return profileGeo;
     }
-  } catch (err) {
-    console.warn('IP lookup warning:', err);
   }
 
-  // Secondary IP Fallback
+  // 3. Multi-tier IP Geolocation
   try {
-    const ipRes2 = await fetch('https://ipapi.co/json/');
-    if (ipRes2.ok) {
-      const ipData2 = await ipRes2.json();
-      if (ipData2 && ipData2.latitude && ipData2.longitude) {
+    const ipRes = await fetch('https://ipapi.co/json/');
+    if (ipRes.ok) {
+      const data = await ipRes.json();
+      if (data && data.latitude && data.longitude) {
         return {
-          lat: ipData2.latitude,
-          lng: ipData2.longitude,
-          locationName: ipData2.city || ipData2.region || 'Detected City'
+          lat: data.latitude,
+          lng: data.longitude,
+          locationName: data.city || data.region || data.country_name || 'Detected Area'
         };
       }
     }
   } catch (e) {}
 
-  // Safe global default if offline
-  return { lat: 13.0827, lng: 80.2707, locationName: 'Your City' };
+  try {
+    const ipWho = await fetch('https://ipwho.is/');
+    if (ipWho.ok) {
+      const data = await ipWho.json();
+      if (data && data.success !== false && data.latitude && data.longitude) {
+        return {
+          lat: data.latitude,
+          lng: data.longitude,
+          locationName: data.city || data.region || data.country || 'Detected Area'
+        };
+      }
+    }
+  } catch (e) {}
+
+  // 4. Default fallback
+  return { lat: 13.0827, lng: 80.2707, locationName: preferredProfileLocation || 'Chennai, TN' };
 }
 
 // Geocode city or zip search query
@@ -129,7 +131,6 @@ export async function searchLocationByCity(query: string): Promise<{ lat: number
   return null;
 }
 
-// Clean and validate website URL
 function sanitizeWebsite(url?: string): string | undefined {
   if (!url || typeof url !== 'string') return undefined;
   const trimmed = url.trim();
@@ -182,7 +183,7 @@ export async function fetchLiveNearbyVets(
             distanceKm: dist,
             address: street,
             phone: rawPhone,
-            website: verifiedWebsite, // Only set if REAL website exists in OSM tags!
+            website: verifiedWebsite,
             isOpenNow: true,
             hours: isEmergency ? 'Open 24 Hours / 7 Days' : '9:00 AM – 8:00 PM Daily',
             rating: +(4.5 + (Math.random() * 0.4)).toFixed(1),
@@ -224,7 +225,7 @@ export async function fetchLiveNearbyVets(
             distanceKm: dist,
             address: item.display_name.split(',').slice(1, 3).join(', ').trim() || cityName,
             phone: undefined,
-            website: undefined, // No fake website
+            website: undefined,
             isOpenNow: true,
             hours: '8:30 AM – 7:30 PM Daily',
             rating: 4.8,
@@ -240,7 +241,7 @@ export async function fetchLiveNearbyVets(
     }
   } catch (e) {}
 
-  // 3. Realistic localized clinics anchored to user location WITHOUT ANY fake websites!
+  // 3. Realistic localized clinics anchored to user location
   const localizedClinics: VetClinic[] = [
     {
       id: 'local-vet-1',
@@ -248,7 +249,7 @@ export async function fetchLiveNearbyVets(
       distanceKm: +(1.2 + Math.random() * 0.8).toFixed(1),
       address: `Main Care Road, ${cityName}`,
       phone: undefined,
-      website: undefined, // NO fake website
+      website: undefined,
       isOpenNow: true,
       hours: 'Open 24 Hours / 7 Days',
       rating: 4.9,
@@ -265,7 +266,7 @@ export async function fetchLiveNearbyVets(
       distanceKm: +(2.1 + Math.random() * 1.1).toFixed(1),
       address: `Central Crossroad, ${cityName}`,
       phone: undefined,
-      website: undefined, // NO fake website
+      website: undefined,
       isOpenNow: true,
       hours: '8:30 AM – 8:00 PM Daily',
       rating: 4.8,
@@ -282,7 +283,7 @@ export async function fetchLiveNearbyVets(
       distanceKm: +(3.5 + Math.random() * 1.2).toFixed(1),
       address: `Park Avenue, ${cityName}`,
       phone: undefined,
-      website: undefined, // NO fake website
+      website: undefined,
       isOpenNow: true,
       hours: '9:00 AM – 7:30 PM (Mon-Sat)',
       rating: 4.7,

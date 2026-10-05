@@ -1,23 +1,31 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, getCurrencyForLocation } from '../../context/AuthContext';
 import { usePet } from '../../context/PetContext';
 import { PetProfileDetails } from '../pet-profile/PetProfileDetails';
-import { storage } from '../../services/storageService';
-import { useToast } from '../../context/ToastContext';
-import { User, Key, Bell, RefreshCw, LogOut, ShieldCheck, Sparkles, Heart } from 'lucide-react';
+import { LogOut, MapPin, Heart, Globe, Check } from 'lucide-react';
 
 export const UserProfileView: React.FC = () => {
   const { user, logout, updateUserProfile } = useAuth();
   const { pets, openAddPet } = usePet();
-  const { showToast } = useToast();
-  const [apiKey, setApiKey] = useState(user?.aiApiKey || '');
-  const [provider, setProvider] = useState<'gemini' | 'anthropic' | 'openai' | 'mock'>(user?.aiProvider || 'gemini');
+  const [locationInput, setLocationInput] = useState(user?.location || 'India');
 
-  const handleSaveApi = (e: React.FormEvent) => {
+  const popularLocations = [
+    { label: '🇮🇳 India (Flipkart, Supertails, Blinkit, Amazon IN - ₹)', value: 'India' },
+    { label: '🇺🇸 United States (Chewy, Petco, PetSmart, Amazon US - $)', value: 'United States' },
+    { label: '🇬🇧 United Kingdom (Pets at Home, Amazon UK - £)', value: 'United Kingdom' },
+    { label: '🇨🇦 Canada (Pet Valu, Amazon CA - CA$)', value: 'Canada' },
+    { label: '🇦🇺 Australia (Pet Circle, Amazon AU - AU$)', value: 'Australia' },
+    { label: '🇪🇺 Europe / Germany (Zooplus, Amazon EU - €)', value: 'Germany' }
+  ];
+
+  const handleSaveLocation = (e: React.FormEvent) => {
     e.preventDefault();
+    const cleanLoc = locationInput.trim();
+    if (!cleanLoc) return;
+    const curr = getCurrencyForLocation(cleanLoc);
     updateUserProfile({
-      aiApiKey: apiKey.trim(),
-      aiProvider: provider
+      location: cleanLoc,
+      preferredCurrency: curr
     });
   };
 
@@ -61,49 +69,55 @@ export const UserProfileView: React.FC = () => {
           </button>
         </div>
 
-        {/* AI Key & Cloud Config */}
-        <form onSubmit={handleSaveApi} className="space-y-3 bg-slate-50 dark:bg-slate-900/40 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
-          <div className="flex items-center gap-2 mb-1">
-            <Key className="w-4 h-4 text-emerald-600" />
-            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-700 dark:text-slate-300">
-              Optional AI Assistant API Key
-            </h4>
+        {/* Location & Region Settings Card */}
+        <form onSubmit={handleSaveLocation} className="space-y-4 bg-emerald-50/50 dark:bg-slate-900/60 p-5 rounded-3xl border border-emerald-200/80 dark:border-slate-700">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="font-extrabold text-sm text-slate-900 dark:text-slate-100">
+                  Location & Country Preferences
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Current: <strong className="text-emerald-700 dark:text-emerald-400">{user?.location || 'India'}</strong> (Currency: {user?.preferredCurrency || '₹'})
+                </p>
+              </div>
+            </div>
+            <Globe className="w-5 h-5 text-emerald-600 dark:text-emerald-400 hidden sm:block" />
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            By default, Smart Care uses our high-speed veterinary intelligence model with emergency triaging. You can optionally connect your own Gemini or OpenAI API key here.
+
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Multi-store price matching (Amazon, Flipkart, Chewy, Supertails, Blinkit) and nearby AI vet hospital dispatch automatically customize based on your home country and region.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Provider</label>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Select Country / Region
+              </label>
               <select
-                value={provider}
-                onChange={e => setProvider(e.target.value as any)}
-                className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                value={locationInput}
+                onChange={e => setLocationInput(e.target.value)}
+                className="w-full px-3.5 py-2.5 text-xs rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
-                <option value="mock">Built-in Smart Model (Default)</option>
-                <option value="gemini">Google Gemini (1.5 Flash)</option>
-                <option value="anthropic">Anthropic Claude</option>
-                <option value="openai">OpenAI GPT-4o</option>
+                {popularLocations.map(loc => (
+                  <option key={loc.value} value={loc.value}>
+                    {loc.label}
+                  </option>
+                ))}
               </select>
             </div>
-            <div className="sm:col-span-2">
-              <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">API Key (Stored locally)</label>
-              <div className="flex gap-2">
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={e => setApiKey(e.target.value)}
-                  placeholder="AIzaSy... or sk-..."
-                  className="flex-1 px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-colors"
-                >
-                  Save
-                </button>
-              </div>
+
+            <div className="flex items-end">
+              <button
+                type="submit"
+                className="w-full py-2.5 px-4 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold transition-all shadow-md flex items-center justify-center gap-1.5"
+              >
+                <Check className="w-4 h-4" />
+                <span>Update Location</span>
+              </button>
             </div>
           </div>
         </form>

@@ -1,15 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import { usePet } from '../../context/PetContext';
+import { useAuth } from '../../context/AuthContext';
 import { searchAndCompareProducts, SortOption } from '../../services/shoppingService';
 import { ProductComparisonCard } from './ProductComparisonCard';
 import { SpeciesSearchChips } from './SpeciesSearchChips';
-import { Search, Clock, DollarSign, Star, X } from 'lucide-react';
+import { Search, Clock, DollarSign, Star, X, MapPin } from 'lucide-react';
 
 export const ShoppingView: React.FC = () => {
   const { activePet } = usePet();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('best_match');
   const [fastDeliveryOnly, setFastDeliveryOnly] = useState(false);
+
+  const userLoc = user?.location || 'India';
+  const userCurr = user?.preferredCurrency || '₹';
 
   const products = useMemo(() => {
     return searchAndCompareProducts(
@@ -17,24 +22,30 @@ export const ShoppingView: React.FC = () => {
       activePet?.category,
       sortBy,
       undefined,
-      fastDeliveryOnly
+      fastDeliveryOnly,
+      userLoc
     );
-  }, [searchQuery, activePet?.category, sortBy, fastDeliveryOnly]);
+  }, [searchQuery, activePet?.category, sortBy, fastDeliveryOnly, userLoc]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-5 pb-14">
-      <div>
-        <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100">
-            Multi-Store Pet Price Compare
-          </h2>
-          <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
-            Amazon • Chewy • Petco • Flipkart
-          </span>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100">
+              Multi-Store Pet Price Compare
+            </h2>
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Search any pet item, compare prices across retailers, and click out directly to real product store pages
+          </p>
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-          Search any pet item, compare prices across retailers, and click out directly to real product store pages
-        </p>
+
+        {/* Location & Store Badge */}
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-emerald-100/80 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-800">
+          <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+          <span>Location: {userLoc} ({userCurr})</span>
+        </div>
       </div>
 
       <div className="relative">
@@ -118,7 +129,7 @@ export const ShoppingView: React.FC = () => {
             onChange={e => setFastDeliveryOnly(e.target.checked)}
             className="accent-emerald-600 w-3.5 h-3.5 rounded"
           />
-          <span>Arriving Tomorrow / 2-Days Only</span>
+          <span>Arriving Tomorrow / Express Only</span>
         </label>
       </div>
 

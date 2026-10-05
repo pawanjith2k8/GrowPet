@@ -72,9 +72,7 @@ export const AIChatView: React.FC = () => {
       const res = await askPetAssistant(
         prompt,
         activePet,
-        chatMessages,
-        user?.aiApiKey,
-        user?.aiProvider || 'gemini'
+        chatMessages
       );
 
       if (res.isEmergency) {
@@ -118,7 +116,7 @@ export const AIChatView: React.FC = () => {
               </span>
             </div>
             <p className="text-[11px] text-slate-400">
-              Powered by Google Gemini 1.5 Flash • 24/7 Clinical Triage
+              SmartCare Clinical Intelligence • 24/7 Pet Triage
             </p>
           </div>
         </div>

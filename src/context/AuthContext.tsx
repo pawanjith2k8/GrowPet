@@ -1,35 +1,42 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile } from '../types';
 import { storage } from '../services/storageService';
-import { auth, googleProvider, db } from '../services/firebase';
+import { auth, googleProvider } from '../services/firebase';
 import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signInWithPopup,
   signInAnonymously,
   signOut,
-  updateProfile as updateFirebaseProfile,
   onAuthStateChanged,
   User as FirebaseUser
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useToast } from './ToastContext';
+
+export function getCurrencyForLocation(location?: string): string {
+  if (!location) return '₹';
+  const loc = location.toLowerCase();
+  if (loc.includes('india') || loc.includes('chennai') || loc.includes('mumbai') || loc.includes('bengaluru') || loc.includes('delhi') || loc.includes('hyderabad') || loc.includes('in')) return '₹';
+  if (loc.includes('uk') || loc.includes('united kingdom') || loc.includes('england') || loc.includes('london')) return '£';
+  if (loc.includes('canada') || loc.includes('toronto')) return 'CA$';
+  if (loc.includes('australia') || loc.includes('sydney') || loc.includes('melbourne')) return 'AU$';
+  if (loc.includes('europe') || loc.includes('germany') || loc.includes('france') || loc.includes('spain') || loc.includes('italy')) return '€';
+  if (loc.includes('us') || loc.includes('usa') || loc.includes('united states') || loc.includes('america')) return '$';
+  return '₹';
+}
 
 interface AuthContextValue {
   user: UserProfile | null;
   loading: boolean;
-  loginWithEmail: (email: string, name?: string) => Promise<boolean>;
-  login: (email: string, pass?: string) => Promise<boolean>;
-  signup: (email: string, pass?: string, name?: string) => Promise<boolean>;
-  loginWithGoogle: () => Promise<boolean>;
-  loginAsGuest: () => Promise<boolean>;
+  loginWithEmail: (email: string, name?: string, location?: string) => Promise<boolean>;
+  login: (email: string, pass?: string, location?: string) => Promise<boolean>;
+  signup: (email: string, pass?: string, name?: string, location?: string) => Promise<boolean>;
+  loginWithGoogle: (location?: string) => Promise<boolean>;
+  loginAsGuest: (location?: string) => Promise<boolean>;
   logout: () => Promise<void>;
   updateUserProfile: (updated: Partial<UserProfile>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// Generate clean deterministic user id from email
 function getDeterministicUid(email: string): string {
   const clean = email.trim().toLowerCase().replace(/[^a-zA-Z0-9]/g, '_');
   return `user_${clean}`;
@@ -42,30 +49,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
+      const saved = storage.getUserProfile();
       if (fbUser && fbUser.email) {
         const uid = getDeterministicUid(fbUser.email);
+        const loc = saved?.location || 'India';
         const profile: UserProfile = {
           uid,
           email: fbUser.email.toLowerCase(),
           displayName: fbUser.displayName || fbUser.email.split('@')[0] || 'Pet Parent',
           photoURL: fbUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
           isGuest: false,
-          preferredCurrency: '$',
-          notificationsEnabled: true,
-          aiProvider: 'gemini'
+          location: loc,
+          preferredCurrency: getCurrencyForLocation(loc),
+          notificationsEnabled: true
         };
         storage.saveUserProfile(profile);
         setUser(profile);
       } else if (fbUser && fbUser.isAnonymous) {
+        const loc = saved?.location || 'India';
         const profile: UserProfile = {
           uid: fbUser.uid,
           email: 'guest@smartcare.app',
           displayName: 'Guest Pet Parent',
           photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
           isGuest: true,
-          preferredCurrency: '$',
-          notificationsEnabled: true,
-          aiProvider: 'gemini'
+          location: loc,
+          preferredCurrency: getCurrencyForLocation(loc),
+          notificationsEnabled: true
         };
         storage.saveUserProfile(profile);
         setUser(profile);
@@ -79,11 +89,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, []);
 
-  // 1-Click Passwordless Email Login
-  const loginWithEmail = async (emailInput: string, nameInput?: string): Promise<boolean> => {
+  const loginWithEmail = async (emailInput: string, nameInput?: string, locationInput?: string): Promise<boolean> => {
     const cleanEmail = emailInput.trim().toLowerCase();
     const uid = getDeterministicUid(cleanEmail);
     const displayName = nameInput?.trim() || cleanEmail.split('@')[0];
+    const userLoc = locationInput || user?.location || 'India';
 
     const profile: UserProfile = {
       uid,
@@ -91,26 +101,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       displayName,
       photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       isGuest: false,
-      preferredCurrency: '$',
-      notificationsEnabled: true,
-      aiProvider: 'gemini'
+      location: userLoc,
+      preferredCurrency: getCurrencyForLocation(userLoc),
+      notificationsEnabled: true
     };
 
     storage.saveUserProfile(profile);
     setUser(profile);
-    showToast(`Welcome, ${profile.displayName}! 🐾`, 'success');
+    showToast(`Welcome, ${profile.displayName}! 🐾 Location set to ${userLoc}.`, 'success');
     return true;
   };
 
-  const login = async (email: string, _pass?: string): Promise<boolean> => {
-    return loginWithEmail(email);
+  const login = async (email: string, _pass?: string, locationInput?: string): Promise<boolean> => {
+    return loginWithEmail(email, undefined, locationInput);
   };
 
-  const signup = async (email: string, _pass?: string, name?: string): Promise<boolean> => {
-    return loginWithEmail(email, name);
+  const signup = async (email: string, _pass?: string, name?: string, locationInput?: string): Promise<boolean> => {
+    return loginWithEmail(email, name, locationInput);
   };
 
-  const loginWithGoogle = async (): Promise<boolean> => {
+  const loginWithGoogle = async (locationInput?: string): Promise<boolean> => {
+    const userLoc = locationInput || 'India';
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const email = (result.user.email || 'user@gmail.com').toLowerCase();
@@ -121,17 +132,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         displayName: result.user.displayName || email.split('@')[0] || 'Google User',
         photoURL: result.user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
         isGuest: false,
-        preferredCurrency: '$',
-        notificationsEnabled: true,
-        aiProvider: 'gemini'
+        location: userLoc,
+        preferredCurrency: getCurrencyForLocation(userLoc),
+        notificationsEnabled: true
       };
       storage.saveUserProfile(profile);
       setUser(profile);
-      showToast(`Signed in as ${profile.displayName}! ✨`, 'success');
+      showToast(`Signed in as ${profile.displayName}! ✨ Location: ${userLoc}`, 'success');
       return true;
     } catch (err: any) {
       console.warn('Google popup error:', err);
-      // Fallback Google Sign-In
       const email = 'alex.petcare@gmail.com';
       const uid = getDeterministicUid(email);
       const profile: UserProfile = {
@@ -140,9 +150,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         displayName: 'Alex Morgan',
         photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
         isGuest: false,
-        preferredCurrency: '$',
-        notificationsEnabled: true,
-        aiProvider: 'gemini'
+        location: userLoc,
+        preferredCurrency: getCurrencyForLocation(userLoc),
+        notificationsEnabled: true
       };
       storage.saveUserProfile(profile);
       setUser(profile);
@@ -151,23 +161,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginAsGuest = async (): Promise<boolean> => {
+  const loginAsGuest = async (locationInput?: string): Promise<boolean> => {
     try {
       await signInAnonymously(auth);
     } catch (e) {}
+    const userLoc = locationInput || 'India';
     const guestProfile: UserProfile = {
       uid: 'guest-' + Date.now(),
       email: 'guest@smartcare.app',
       displayName: 'Guest Pet Parent',
       isGuest: true,
-      preferredCurrency: '$',
+      location: userLoc,
+      preferredCurrency: getCurrencyForLocation(userLoc),
       notificationsEnabled: true,
-      aiProvider: 'gemini',
       photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
     };
     storage.saveUserProfile(guestProfile);
     setUser(guestProfile);
-    showToast('Logged in as Guest! All pet records are saved in your browser.', 'info');
+    showToast(`Logged in as Guest! Location set to ${userLoc}.`, 'info');
     return true;
   };
 
@@ -182,10 +193,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateUserProfile = (updated: Partial<UserProfile>) => {
     if (!user) return;
-    const merged = { ...user, ...updated };
+    const loc = updated.location !== undefined ? updated.location : user.location;
+    const curr = updated.preferredCurrency || (updated.location ? getCurrencyForLocation(updated.location) : user.preferredCurrency);
+    const merged = { ...user, ...updated, location: loc, preferredCurrency: curr };
     storage.saveUserProfile(merged);
     setUser(merged);
-    showToast('Settings saved!', 'success');
+    showToast('Profile & location settings updated!', 'success');
   };
 
   return (

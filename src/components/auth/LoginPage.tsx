@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Heart, Sparkles, Mail, Lock, User, ShieldCheck, ArrowRight, CheckCircle2, Shield, Eye, EyeOff, Activity, Stethoscope } from 'lucide-react';
+import { Heart, Mail, ShieldCheck, ArrowRight, Shield, Stethoscope, Activity, MapPin } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { loginWithEmail, loginWithGoogle, loginAsGuest } = useAuth();
   const [email, setEmail] = useState('');
+  const [location, setLocation] = useState('India');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const popularLocations = [
+    { label: '🇮🇳 India', value: 'India' },
+    { label: '🇺🇸 United States', value: 'United States' },
+    { label: '🇬🇧 United Kingdom', value: 'United Kingdom' },
+    { label: '🇨🇦 Canada', value: 'Canada' },
+    { label: '🇦🇺 Australia', value: 'Australia' },
+    { label: '🇪🇺 Europe', value: 'Germany' }
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +27,7 @@ export const LoginPage: React.FC = () => {
     setErrorMsg('');
     setLoading(true);
     try {
-      await loginWithEmail(email);
+      await loginWithEmail(email, undefined, location);
     } catch (err: any) {
       setErrorMsg(err.message || 'Error signing in. Please try again.');
     } finally {
@@ -50,17 +60,39 @@ export const LoginPage: React.FC = () => {
       <div className="w-full max-w-md bg-slate-900/95 backdrop-blur-2xl rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-2xl shadow-black/80 relative z-10 animate-fade-in my-6">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-black text-white tracking-tight">
-            Sign In with Your Email
+            Welcome to GrowPet
           </h2>
           <p className="text-xs text-slate-400 font-medium mt-1.5">
-            No password needed. Enter your email to immediately access all your pets and health logs.
+            Sign in to access personalized pet care, 24/7 AI vet triage, and local store price matching.
           </p>
+        </div>
+
+        {/* Location Selection Component */}
+        <div className="mb-5 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
+            <MapPin className="w-3.5 h-3.5" />
+            <span>Select Your Country / Location</span>
+          </div>
+          <p className="text-[11px] text-slate-400 leading-tight">
+            Price matching stores (Amazon, Flipkart, Chewy, Supertails) and nearby vet dispatch adapt to your location.
+          </p>
+          <select
+            value={location}
+            onChange={e => setLocation(e.target.value)}
+            className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            {popularLocations.map(loc => (
+              <option key={loc.value} value={loc.value}>
+                {loc.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Google SSO */}
         <button
           type="button"
-          onClick={loginWithGoogle}
+          onClick={() => loginWithGoogle(location)}
           className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-extrabold text-xs transition-all shadow-md active:scale-[0.99] mb-4"
         >
           <img
@@ -123,11 +155,11 @@ export const LoginPage: React.FC = () => {
         <div className="mt-5 pt-4 border-t border-slate-800 text-center">
           <button
             type="button"
-            onClick={loginAsGuest}
+            onClick={() => loginAsGuest(location)}
             className="text-xs text-slate-400 hover:text-emerald-400 font-bold flex items-center justify-center gap-1.5 mx-auto transition-colors"
           >
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
-            <span>Try as Guest (Instant Access)</span>
+            <span>Try as Guest ({location})</span>
           </button>
         </div>
       </div>
@@ -140,11 +172,11 @@ export const LoginPage: React.FC = () => {
         </span>
         <span className="flex items-center gap-1.5">
           <Stethoscope className="w-4 h-4 text-emerald-500" />
-          Gemini AI Multimodal Ready
+          SmartCare AI Multimodal Ready
         </span>
         <span className="flex items-center gap-1.5">
           <Activity className="w-4 h-4 text-emerald-500" />
-          Real-time Price & Delivery Tracking
+          Country-based Price & Store Matching
         </span>
       </div>
     </div>

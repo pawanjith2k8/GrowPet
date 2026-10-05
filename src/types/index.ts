@@ -151,8 +151,8 @@ export interface UserProfile {
   displayName: string;
   photoURL?: string;
   isGuest: boolean;
+  location?: string;
+  locationCountryCode?: string;
   preferredCurrency: string;
-  aiApiKey?: string;
-  aiProvider?: 'gemini' | 'anthropic' | 'openai' | 'mock';
   notificationsEnabled: boolean;
 }

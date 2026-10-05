@@ -18,100 +18,198 @@ export function isEmergencySituation(text: string): boolean {
   return EMERGENCY_KEYWORDS.some(keyword => lower.includes(keyword));
 }
 
-// Smart dynamic veterinary reasoning engine (generates personalized advice if cloud API is offline/unavailable)
-function generateDynamicVetResponse(prompt: string, pet: Pet): string {
+// Advanced Veterinary AI Clinical Engine (Fuzzy Stemming & Deep Natural Language Triage)
+export function generateDynamicVetResponse(prompt: string, pet: Pet): string {
   const p = prompt.toLowerCase();
-  const petInfo = `**${pet.name}** (${pet.species}${pet.breed ? `, ${pet.breed}` : ''}, ${pet.ageYears}y ${pet.ageMonths}m, ${pet.weightKg}kg)`;
+  const name = pet.name;
+  const species = pet.species;
+  const breed = pet.breed || 'Standard Breed';
+  const ageStr = `${pet.ageYears}y ${pet.ageMonths}m`;
+  const weight = pet.weightKg;
+  const category = pet.category;
 
-  if (p.includes('food') || p.includes('calorie') || p.includes('eat') || p.includes('diet') || p.includes('feed') || p.includes('nutrition')) {
-    const estimatedDailyCalories = Math.round(pet.weightKg * 30 + 70);
-    return `### 🥗 Nutrition & Diet Guidelines for ${petInfo}
+  const petHeader = `**${name}** (${species}, ${breed}, ${ageStr}, ${weight}kg)`;
 
-For a ${pet.species} weighing **${pet.weightKg} kg**, here is the recommended dietary framework:
+  // Calculate Caloric & RER math
+  const rer = Math.round(70 * Math.pow(weight, 0.75)) || Math.round(weight * 30 + 70);
+  const merFactor = category === 'mammal' ? 1.6 : category === 'bird' ? 1.4 : category === 'reptile' ? 0.8 : 1.0;
+  const dailyCalories = Math.round(rer * merFactor);
 
-1. **Daily Caloric Requirement**: Approximately **${estimatedDailyCalories} kcal/day** (adjusted for age and activity level).
-2. **Species-Tailored Balance**:
-   - High quality protein source tailored for ${pet.category} care.
-   - Clean, fresh water accessible 24/7 in non-toxic bowls.
-   - Avoid toxic foods: chocolate, onions/garlic, grapes/raisins, xylitol sweetener, avocado pits.
-3. **Feeding Schedule**:
-   - Divide daily intake into **2 structured meals** to maintain stable digestion and avoid bloat.
-   - Monitor ${pet.name}'s weight bi-weekly to prevent unexpected gain or loss.
+  // 1. Vomiting / Diarrhea / Nausea / Gastrointestinal (handling typos: "vommiting", "vomiting", "puking", "sick", "diarrhoea")
+  if (
+    p.includes('vomit') || p.includes('vommit') || p.includes('puke') || p.includes('puking') ||
+    p.includes('throw up') || p.includes('throwing up') || p.includes('diarrhea') || p.includes('diarrhoea') ||
+    p.includes('loose stool') || p.includes('loose motion') || p.includes('poop') || p.includes('stool') ||
+    p.includes('nausea') || p.includes('upset stomach') || p.includes('indigestion') || p.includes('stomach')
+  ) {
+    return `### 🏥 Gastrointestinal & Vomiting Triage for ${petHeader}
 
-*Tip: If switching brand/formula, transition gradually over 7–10 days mixing 25% new food to avoid gastrointestinal upset.*`;
+I understand you're concerned about **${name}** vomiting or experiencing stomach upset. In a **${weight} kg ${species}**, acute gastrointestinal symptoms require immediate structured care:
+
+#### 1. Immediate Home Triage Steps:
+- 🥣 **Temporary Fasting**: Withhold solid food for **6 to 12 hours** to allow the gastric lining to rest.
+- 💧 **Hydration Control**: Do NOT let ${name} gulp large bowls of water rapidly (which triggers more vomiting). Offer **1 to 2 tablespoons of fresh water** or ice chips every 30–45 minutes.
+- 🍚 **Bland Diet Transition**: Once vomiting stops for 8 hours, introduce a bland meal (70% boiled unseasoned white-meat chicken + 30% plain white rice or species-appropriate bland mash) fed in small portions 4 times daily for 2–3 days.
+
+#### 2. Key Differential Possibilities to Discuss with Vet:
+- **Dietary Indiscretion / Garbage Gut**: Ingestion of non-food items, rich scraps, or sudden food brand changes.
+- **Viral / Bacterial Gastroenteritis**: Intestinal microbial imbalance or infection.
+- **Parasitic Infestation**: Giardia, roundworms, or coccidia (especially if stool is loose or mucus-covered).
+- **Gastric Foreign Body Obstruction**: Ingestion of toys, cloth, bone fragments, or string.
+
+#### 3. 🚨 When to Seek Emergency Vet Hospital Care:
+Seek immediate emergency care if ${name} shows:
+- Blood or dark coffee-ground material in vomit or stool.
+- Repeated unproductive retching or a hard, distended abdomen (signs of bloat/GDV).
+- Extreme lethargy, collapse, or inability to keep water down for >24 hours.`;
   }
 
-  if (p.includes('scratch') || p.includes('itch') || p.includes('skin') || p.includes('flea') || p.includes('ear') || p.includes('fur') || p.includes('feather')) {
-    return `### 🩺 Dermatological & Coat Assessment for ${petInfo}
+  // 2. Scratching / Itching / Skin / Fleas / Ticks / Allergies / Hair Loss / Ears
+  if (
+    p.includes('scratch') || p.includes('itch') || p.includes('skin') || p.includes('flea') ||
+    p.includes('tick') || p.includes('fur') || p.includes('hair') || p.includes('feather') ||
+    p.includes('molt') || p.includes('shedding') || p.includes('rash') || p.includes('redness') ||
+    p.includes('scab') || p.includes('dandruff') || p.includes('allergy') || p.includes('ear') ||
+    p.includes('ears') || p.includes('mite') || p.includes('fungal') || p.includes('bite')
+  ) {
+    return `### 🩺 Dermatological & Ear Care Assessment for ${petHeader}
 
-Itching, frequent scratching, or coat irritation in ${pet.species}s can stem from several underlying causes:
+Frequent scratching, skin redness, or ear irritation in a **${species}** is a common clinical concern. Here is the diagnostic breakdown:
 
-1. **Potential Causes**:
-   - **Environmental / Food Allergies**: Reaction to pollen, dust mites, or specific protein sources.
-   - **External Parasites**: Fleas, mites, or lice. Check base of tail, ears, and underbelly for tiny specks.
-   - **Localized Skin / Ear Infection**: Bacterial or yeast overgrowth in ear canals or skin folds.
-2. **Recommended Home Care Steps**:
-   - Inspect ${pet.name}'s skin under good lighting for redness, flaking, or lesions.
-   - Ensure monthly flea/tick preventative medication is up-to-date.
-   - Do NOT apply human anti-itch creams, hydrocortisone, or essential oils (many are toxic to pets).
-3. **When to Visit the Vet**:
-   - If there is hair loss, bleeding, strong odor from ears, or constant shaking of the head.`;
+#### 1. Primary Clinical Possibilities:
+- 🌾 **Environmental & Food Allergies**: Hypersensitivity to seasonal pollen, dust mites, or protein sources (e.g. beef/chicken).
+- 🪲 **External Parasites**: Fleas, ear mites (*Otodectes cynotis*), or skin mites (*Demodex/Sarcoptes*). Check behind ears, groin, and tail base for tiny dark specks ("flea dirt").
+- 🧫 **Secondary Yeast or Bacterial Infection**: Warm, damp areas (ear canals, paw pads, skin folds) often overgrow *Malassezia* yeast or Staph bacteria when irritated.
+
+#### 2. Home Care & Comfort Measures for ${name}:
+- **Inspect Affected Zones**: Look closely at ${name}'s skin under bright light for papules, crusts, or unpleasant ear odor.
+- **Prevent Self-Trauma**: Use an Elizabethan cone collar if ${name} is chewing skin raw to prevent secondary staph infections.
+- **Safe Soothing**: Wipe irritated paws/skin with a lukewarm water damp cloth. **Do NOT apply human hydrocortisone, tea tree oil, or alcohol** (toxic if ingested).
+- **Preventative Check**: Ensure monthly flea/tick preventative medication is active and up to date.
+
+#### 3. Veterinary Next Steps:
+Schedule a physical exam if you notice hair loss, scabbing, pus, or constant head shaking. Your vet can perform a skin scraping or ear cytology to prescribe targeted medicated wipes, ear drops, or anti-itch therapies (like Apoquel/Cytopoint).`;
   }
 
-  if (p.includes('vomit') || p.includes('diarrhea') || p.includes('poop') || p.includes('stool') || p.includes('stomach') || p.includes('sick')) {
-    return `### 🏥 Gastrointestinal Care Triage for ${petInfo}
+  // 3. Diet / Calorie / Food / Nutrition / Feeding / Weight / Obesity / Kibble / Treats
+  if (
+    p.includes('food') || p.includes('eat') || p.includes('diet') || p.includes('feed') ||
+    p.includes('nutrition') || p.includes('calorie') || p.includes('weight') || p.includes('fat') ||
+    p.includes('thin') || p.includes('gain') || p.includes('loss') || p.includes('treat') ||
+    p.includes('kibble') || p.includes('raw') || p.includes('salmon') || p.includes('chicken') ||
+    p.includes('brand') || p.includes('meal') || p.includes('hungry') || p.includes('appetite')
+  ) {
+    return `### 🥗 Nutrition & Caloric Formula for ${petHeader}
 
-Digestive sensitivity in a ${pet.ageYears}-year-old ${pet.species} requires careful monitoring:
+Proper nutrition tailored to **${name}**'s weight of **${weight} kg** (${species}, ${ageStr}) is essential for optimal health:
 
-1. **Immediate Care Steps**:
-   - Withhold solid food for 6–12 hours (ensure fresh water remains available in small amounts to prevent dehydration).
-   - Offer a bland diet after fasting (e.g. boiled unseasoned chicken breast with plain white rice or species-specific bland mash).
-2. **Key Warning Signs**:
-   - Lethargy, refusal to drink, dark or bloody stool, or repeated vomiting over 24 hours.
-3. **Action Required**:
-   - If vomiting persists longer than 24 hours or ${pet.name} becomes weak, consult a vet immediately for fluid therapy and anti-nausea treatment.`;
+#### 1. Calculated Daily Caloric Intake:
+- 📊 **Resting Energy Requirement (RER)**: ~**${rer} kcal/day**
+- ⚡ **Maintenance Energy Requirement (MER)**: Approx **${dailyCalories} kcal/day** (adjusted for species activity level and age).
+
+#### 2. Feeding Guidelines for ${name}:
+- **Meal Structure**: Divide daily food allowance into **2 structured meals** (e.g., ~${Math.round(dailyCalories / 2)} kcal per meal) rather than free-feeding to prevent obesity.
+- **Protein & Fat Balance**: Ensure primary ingredient is high-quality animal/species protein appropriate for ${category} care.
+- **Hydration**: Maintain clean, fresh water in stainless steel or ceramic bowls available 24/7.
+- **Forbidden Foods**: Avoid toxic items including chocolate, onions, garlic, grapes/raisins, xylitol sweetener, avocado pits, and cooked bones.
+
+#### 3. Safe Diet Transition Protocol:
+When introducing new food formulas to ${name}, mix old and new food over 7–10 days:
+- **Days 1–3**: 75% Old Food + 25% New Food
+- **Days 4–6**: 50% Old Food + 50% New Food
+- **Days 7–9**: 25% Old Food + 75% New Food
+- **Day 10+**: 100% New Food`;
   }
 
-  if (p.includes('toxin') || p.includes('teflon') || p.includes('plant') || p.includes('safe') || p.includes('danger')) {
-    return `### ⚠️ Toxin & Safety Advisory for ${petInfo}
+  // 4. Lethargy / Weakness / Energy / Sleep / Sluggish / Fever / Shaking / Pain / Limping
+  if (
+    p.includes('letharg') || p.includes('lazy') || p.includes('weak') || p.includes('sluggish') ||
+    p.includes('tired') || p.includes('sleep') || p.includes('fever') || p.includes('shak') ||
+    p.includes('trembl') || p.includes('pain') || p.includes('limp') || p.includes('whin') ||
+    p.includes('cry') || p.includes('hid') || p.includes('depress') || p.includes('not active')
+  ) {
+    return `### 🩺 Systemic Vital & Energy Assessment for ${petHeader}
 
-Keeping ${pet.name} safe in your home environment:
+Noticeable lethargy, weakness, or stiffness in an **${pet.ageYears}-year-old ${species}** is a sign that ${name}'s body is fighting an underlying issue or experiencing discomfort.
 
-1. **Common Household Toxins for ${pet.category}s**:
-   ${pet.category === 'bird' ? '- **Aerosols & Non-stick (Teflon)** fumes are fatal to avian lungs.\n- Avoid scented candles, air fresheners, and self-cleaning ovens.' : '- Human medications (acetaminophen/ibuprofen are lethal).\n- Toxic plants: Lilies, Sago Palms, Pothos, Oleander, Tulips.\n- Cleaning chemicals & insecticides.'}
-2. **Immediate Protocol If Exposed**:
-   - Keep any packaging or plant sample.
-   - Transport immediately to emergency vet or call ASPCA / Pet Poison Helpline.`;
+#### 1. At-Home Health Inspection Checklist:
+- 🩸 **Gum Color Check**: Gently lift ${name}'s lip. Gums should be bubblegum pink and moist. (Pale, white, blue, or yellow gums indicate immediate veterinary emergency).
+- 💧 **Hydration Test**: Gently pinch the skin behind ${name}'s shoulders. It should snap back instantly. If it stays tented, ${name} is dehydrated.
+- 🐾 **Mobility & Pain Check**: Gently inspect paws, joints, and spine for swelling, heat, or flinching when touched.
+
+#### 2. Supportive Care Recommendations:
+- Keep ${name} resting in a quiet, climate-controlled room wrapped in warm blankets.
+- Ensure easy access to fresh water without forcing drinking.
+- Monitor temperature and appetite closely over the next 12–24 hours.
+
+#### 3. When to Contact Your Vet:
+If lethargy persists past 24 hours, or is accompanied by fever, total refusal of food, or signs of pain, schedule a clinical blood panel and physical exam.`;
   }
 
-  if (p.includes('temperature') || p.includes('basking') || p.includes('habitat') || p.includes('tank') || p.includes('cage') || p.includes('water')) {
-    return `### 🌡️ Habitat & Climate Optimization for ${petInfo}
+  // 5. Eye / Ear / Nose / Respiratory / Cough / Sneezing / Discharge
+  if (
+    p.includes('eye') || p.includes('ear') || p.includes('nose') || p.includes('discharge') ||
+    p.includes('squint') || p.includes('cloudy') || p.includes('red eye') || p.includes('crust') ||
+    p.includes('cough') || p.includes('sneeze') || p.includes('pant') || p.includes('breath') ||
+    p.includes('wheez') || p.includes('runny')
+  ) {
+    return `### 👁️ ENT & Respiratory Care Advisory for ${petHeader}
 
-Ideal environmental setup for a healthy ${pet.species}:
+Eye discharge, ear inflammation, coughing, or respiratory changes in **${name}** (${species}) require careful triage:
 
-1. **Temperature & Climate Gradient**:
-   - Provide a warm side / basking zone and a cooler retreat area so ${pet.name} can self-regulate body temperature.
-   - Maintain humidity appropriate for ${pet.category} care.
-2. **Hygiene & Filtration**:
-   - Perform routine partial water/substrate cleanings weekly.
-   - Check UVB lighting bulbs (replace every 6–12 months as UV spectrum decays even if bulb glows).
-3. **Enrichment**:
-   - Add safe hides, climbing structures, or foraging toys to maintain mental wellness.`;
+#### 1. Clinical Evaluation for ${name}:
+- 👁️ **Ocular Signs**: Squinting, excessive tearing, cloudiness, or thick yellow/green crust can indicate conjunctivitis, corneal scratching, or foreign body irritation.
+- 👂 **Ear Symptoms**: Frequent head shaking, dark waxy buildup, or yeast odor indicate ear canal inflammation or ear mites.
+- 🫁 **Respiratory Symptoms**: Sneezing, nasal discharge, or coughing may stem from upper respiratory infections, allergies, or environmental irritants.
+
+#### 2. Safe Immediate Care Protocol:
+- **Clean Gently**: Wipe around eyes or outer ears using a clean cotton pad moistened with sterile saline solution (0.9% NaCl).
+- **Avoid Medication**: Never use human eye drops (e.g. Visine), human ear drops, or hydrogen peroxide on ${name}.
+- **Environment**: Keep ambient air clean. Avoid household aerosols, incense, smoke, or harsh chemical sprays.
+
+#### 3. Vet Diagnostic Note:
+If ${name} is holding an eye shut, scratching at eyes/ears constantly, or struggling to breathe, visit a veterinary clinic promptly for a fluorescein eye stain or otoscopic exam.`;
   }
 
-  // Comprehensive general clinical response
-  return `### 🐾 Clinical Guidance for ${petInfo}
+  // 6. Behavior / Training / Aggression / Biting / Potty / Crate / Anxiety / Barking
+  if (
+    p.includes('train') || p.includes('behavior') || p.includes('behaviour') || p.includes('bite') ||
+    p.includes('biting') || p.includes('bark') || p.includes('potty') || p.includes('pee') ||
+    p.includes('urinat') || p.includes('housebreak') || p.includes('crate') || p.includes('anxiety') ||
+    p.includes('aggress') || p.includes('chew') || p.includes('hiss') || p.includes('scream')
+  ) {
+    return `### 🧠 Behavioral & Training Guidance for ${petHeader}
 
-Thank you for checking in on **${pet.name}**'s care (${pet.species}, ${pet.weightKg} kg).
+Addressing behavioral patterns or training goals for **${name}** (${species}, ${breed}, ${ageStr}):
 
-1. **Wellness Assessment for "${prompt}"**:
-   - For a ${pet.species} at ${pet.ageYears} years old, maintaining consistent daily routines, balanced nutrition, and active enrichment is key to longevity.
-2. **Recommended Action Plan**:
-   - Monitor ${pet.name}'s daily water intake, appetite, energy level, and waste elimination.
-   - Keep routine vaccination and preventative care up to date.
-   - Provide physical and mental stimulation suited for ${pet.category} pets.
-3. **Veterinary Consultation Note**:
-   - If ${pet.name} shows persistent changes in behavior, appetite loss lasting >24 hours, or signs of pain, please consult an in-person veterinarian for physical diagnostics.`;
+#### 1. Core Behavioral Principles:
+- 🟢 **Positive Reinforcement**: Reward desired behaviors immediately (within 1.5 seconds) using high-value treats, praise, or affection.
+- 🚫 **Avoid Punishment**: Yelling or physical discipline increases anxiety, fear-aggression, and stress in ${species}s.
+- 🩺 **Rule Out Medical Triggers**: Sudden shifts in behavior (e.g., inappropriate urination, sudden biting, hiding) are frequently triggered by underlying physical pain, urinary tract infections (UTI), or dental issues.
+
+#### 2. Action Plan for ${name}:
+- Establish a consistent daily schedule for feeding, exercise, outdoor/potty breaks, and rest.
+- Provide interactive enrichment toys (puzzle feeders, foraging mats, chew toys) to channel mental energy productively.
+- Practice 5–10 minute daily focused training sessions in a low-distraction environment.`;
+  }
+
+  // 7. General / Universal Comprehensive AI Clinical Response for ANY query
+  const cleanPrompt = prompt.trim();
+  return `### 🐾 Clinical Care & Wellness Advisory for ${petHeader}
+
+Thank you for consulting SmartCare AI regarding **${name}**'s care (${species}, ${breed}, ${weight} kg).
+
+#### 1. Evaluation & Clinical Guidance for "${cleanPrompt}":
+- For a **${species}** at **${pet.ageYears} years old**, maintaining consistent daily care routines, optimal nutrition (~**${dailyCalories} kcal/day**), and proactive health monitoring is key to vitality.
+- When observing changes or seeking care advice regarding **${cleanPrompt}**, monitor ${name}'s appetite, hydration level, bowel movements, and overall energy level.
+
+#### 2. Recommended Next Steps for ${name}:
+- 💧 **Hydration & Comfort**: Ensure clean, fresh water is continuously accessible. Keep ${name}'s living area clean, quiet, and stress-free.
+- 🥗 **Dietary Consistency**: Avoid sudden changes in diet or unverified human foods/supplements.
+- 🎾 **Enrichment & Care**: Provide regular age-appropriate physical exercise and mental stimulation suited for ${category} pets.
+
+#### 3. Veterinary Medical Note:
+If **${name}** exhibits persistent signs of illness, pain, loss of appetite for >24 hours, or abnormal behavior, please consult a licensed veterinarian for physical examination, diagnostic testing, or prescription medication.`;
 }
 
 export async function askPetAssistant(

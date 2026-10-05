@@ -4,10 +4,10 @@ import { useAuth } from '../../context/AuthContext';
 import { askPetAssistant } from '../../services/aiService';
 import { EmergencyAlertBanner } from './EmergencyAlertBanner';
 import { PhotoSymptomCheckerModal } from './PhotoSymptomCheckerModal';
-import { Send, Camera, Sparkles, RefreshCw, Bot, User, PhoneCall, Shield, Stethoscope, AlertTriangle } from 'lucide-react';
+import { Send, Camera, Sparkles, RefreshCw, Bot, User, PhoneCall, Shield, Stethoscope, AlertTriangle, Trash2 } from 'lucide-react';
 
 export const AIChatView: React.FC = () => {
-  const { activePet, chatMessages, addChatMessage, setActiveTab } = usePet();
+  const { activePet, chatMessages, addChatMessage, clearChatMessages, setActiveTab } = usePet();
   const { user } = useAuth();
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -121,13 +121,26 @@ export const AIChatView: React.FC = () => {
           </div>
         </div>
 
-        <button
-          onClick={() => setIsPhotoModalOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white text-xs font-black shadow-sm transition-all hover:scale-105 active:scale-95"
-        >
-          <Camera className="w-3.5 h-3.5" />
-          <span className="hidden xs:inline">Photo Triage</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {chatMessages.length > 0 && (
+            <button
+              onClick={clearChatMessages}
+              className="p-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors border border-slate-700 text-xs flex items-center gap-1"
+              title="Clear chat history"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline font-bold">Clear Chat</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setIsPhotoModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white text-xs font-black shadow-sm transition-all hover:scale-105 active:scale-95"
+          >
+            <Camera className="w-3.5 h-3.5" />
+            <span className="hidden xs:inline">Photo Triage</span>
+          </button>
+        </div>
       </div>
 
       {/* Emergency Alert Banner */}

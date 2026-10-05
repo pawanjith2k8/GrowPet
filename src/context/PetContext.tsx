@@ -28,6 +28,7 @@ interface PetContextValue {
   deleteExpense: (id: string) => void;
   chatMessages: ChatMessage[];
   addChatMessage: (msg: Omit<ChatMessage, 'id' | 'petId' | 'timestamp'>) => void;
+  clearChatMessages: () => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
   isAddPetOpen: boolean;
@@ -373,6 +374,21 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   };
 
+  const clearChatMessages = () => {
+    if (!activePetId) return;
+    setChatMessagesMap(prev => ({
+      ...prev,
+      [activePetId]: []
+    }));
+    const key = `smartcare_chat_messages_${storage.getCurrentUserId()}`;
+    try {
+      const all = JSON.parse(localStorage.getItem(key) || '{}');
+      delete all[activePetId];
+      localStorage.setItem(key, JSON.stringify(all));
+    } catch (e) {}
+    showToast('Chat history cleared! Ready for new AI questions.', 'info');
+  };
+
   return (
     <PetContext.Provider
       value={{
@@ -396,6 +412,7 @@ export const PetProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         deleteExpense,
         chatMessages,
         addChatMessage,
+        clearChatMessages,
         activeTab,
         setActiveTab,
         isAddPetOpen,
